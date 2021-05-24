@@ -12,10 +12,10 @@ namespace WebApi.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
-        private static List<Character> characters = new List<Character>(){
-            new Character(),
-            new Character{Id = 1, Name = "Sam"}
-        };
+        //private static List<Character> characters = new List<Character>(){
+        //    new Character(),
+        //    new Character{Id = 1, Name = "Sam"}
+        //};
         private readonly IMapper _mapper;
         private readonly DataContext _context;
 
@@ -41,10 +41,11 @@ namespace WebApi.Services.CharacterService
 
             try
             {
-                Character character = characters.First(x => x.Id == id);
-                characters.Remove(character);
+                Character character = await _context.Characters.FirstAsync(x => x.Id == id);
+                _context.Characters.Remove(character);
+                await _context.SaveChangesAsync();
 
-                serviceResponse.Data = characters.Select(x => _mapper.Map<GetCharacterDto>(x)).ToList();
+                serviceResponse.Data = _context.Characters.Select(x => _mapper.Map<GetCharacterDto>(x)).ToList();
             } 
             catch (Exception ex)
             {

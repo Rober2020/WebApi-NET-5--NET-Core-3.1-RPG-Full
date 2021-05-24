@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Data;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,19 +17,21 @@ namespace WebApi.Services.CharacterService
             new Character{Id = 1, Name = "Sam"}
         };
         private readonly IMapper _mapper;
+        private readonly DataContext _context;
 
-        public CharacterService(IMapper mapper)
+        public CharacterService(IMapper mapper, DataContext context)
         {
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto newCharacter)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             Character character= _mapper.Map<Character>(newCharacter);
-            character.Id = characters.Max(c => c.Id) + 1;
-            characters.Add(character);
-            serviceResponse.Data = characters.Select(x=>_mapper.Map<GetCharacterDto>(x)).ToList();
+            _context.Characters.Add(character);
+            await _context.SaveChangesAsync();
+            serviceResponse.Data = await _context.Characters.Select(x=>_mapper.Map<GetCharacterDto>(x)).ToListAsync();
             return  serviceResponse;
         }
 
@@ -53,7 +57,8 @@ namespace WebApi.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
-            serviceResponse.Data = characters.Select(x => _mapper.Map<GetCharacterDto>(x)).ToList();
+            var dbCharacters = await _context.Characters.ToListAsync();
+            serviceResponse.Data = dbCharacters.Select(x => _mapper.Map<GetCharacterDto>(x)).ToList();
 
             return serviceResponse;
         }
@@ -61,7 +66,8 @@ namespace WebApi.Services.CharacterService
         public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
         {
             var serviceResponse = new ServiceResponse<GetCharacterDto>();
-            serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters.FirstOrDefault(x => x.Id == id));
+            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(x => x.Id == id);
+            serviceResponse.Data = _mapper.Map<GetCharacterDto>(dbCharacter);
 
             return serviceResponse;
         }
@@ -72,7 +78,7 @@ namespace WebApi.Services.CharacterService
 
             try
             {
-                Character character = characters.FirstOrDefault(x => x.Id == updateCharacter.Id);
+                Character character = await _context.Characters.FirstOrDefaultAsync(x => x.Id == updateCharacter.Id);
 
                 character.Name = updateCharacter.Name;
                 character.HitPoints = updateCharacter.HitPoints;
@@ -80,6 +86,8 @@ namespace WebApi.Services.CharacterService
                 character.Defense = updateCharacter.Defense;
                 character.Intelligence = updateCharacter.Intelligence;
                 character.Class = updateCharacter.Class;
+
+                await _context.SaveChangesAsync();
 
                 serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
 

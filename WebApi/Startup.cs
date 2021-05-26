@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Data;
 using WebApi.Services.CharacterService;
 
 namespace WebApi
@@ -40,6 +41,7 @@ namespace WebApi
             services.AddAutoMapper(typeof(Startup));
 
             services.AddScoped<ICharacterService, CharacterService>();
+            services.AddScoped<IAuthRepository, AuthRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

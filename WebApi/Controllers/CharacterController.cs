@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using WebApi.Services.CharacterService;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class CharacterController : ControllerBase
@@ -43,7 +45,7 @@ namespace WebApi.Controllers
         public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> UpdateCharacter(UpdateCharacterDto updateCharacter)
         {
             var response = await _characterService.UpdateCharacter(updateCharacter);
-            if(response.Data == null)
+            if (response.Data == null)
             {
                 return NotFound(response);
             }

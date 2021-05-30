@@ -24,12 +24,10 @@ namespace WebApi.Controllers
             _characterService = characterService;
         }
 
-        [AllowAnonymous]
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
         {
-            int id = int.Parse(User.Claims.FirstOrDefault(x=>x.Type == ClaimTypes.NameIdentifier).Value);
-            return Ok(await _characterService.GetAllCharacters(id));
+            return Ok(await _characterService.GetAllCharacters());
         }
 
         [HttpGet("{Id}")]

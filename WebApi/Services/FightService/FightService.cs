@@ -1,4 +1,5 @@
-﻿using Data;
+﻿using AutoMapper;
+using Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,10 +13,12 @@ namespace WebApi.Services.FightService
     public class FightService : IFightService
     {
         private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public FightService(DataContext context)
+        public FightService(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<ServiceResponse<AttackResultDto>> WeaponAttack(WeaponAttackDto request)
@@ -183,6 +186,22 @@ namespace WebApi.Services.FightService
                 response.Success = false;
                 response.Message = ex.Message;
             }
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<HighscoreDto>>> GetHighscore()
+        {
+            var characters = await _context.Characters
+                .Where(x => x.Fights > 0)
+                .OrderByDescending(x => x.Victories)
+                .ThenBy(x => x.Defeats)
+                .ToListAsync();
+
+            var response = new ServiceResponse<List<HighscoreDto>>
+            {
+                Data = characters.Select(x => _mapper.Map<HighscoreDto>(x)).ToList()
+            };
+
             return response;
         }
     }

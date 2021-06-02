@@ -38,5 +38,11 @@ namespace WebApi.Controllers
         {
             return Ok(await _fightService.Fight(request));
         }
+
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<HighscoreDto>>> GetHighscore()
+        {
+            return Ok(await _fightService.GetHighscore());
+        }
     }
 }

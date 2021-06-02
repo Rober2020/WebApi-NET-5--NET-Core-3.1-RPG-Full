@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebApi.Data;
 using WebApi.Services.CharacterService;
+using WebApi.Services.FightService;
 using WebApi.Services.WeaponService;
 
 namespace WebApi
@@ -56,6 +57,7 @@ namespace WebApi
 
             services.AddScoped<ICharacterService, CharacterService>();
             services.AddScoped<IWeaponService, WeaponService>();
+            services.AddScoped<IFightService, FightService>();
 
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
